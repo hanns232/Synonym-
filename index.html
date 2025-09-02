@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synonym Memory Trainer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Synonym Memory Trainer</h1>
+    <nav class="mode-switch">
+      <button class="tab-btn" data-tab="quiz">Quiz</button>
+      <button class="tab-btn" data-tab="review">Review</button>
+      <button class="tab-btn" data-tab="manage">Manage</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Dashboard -->
+    <section class="dashboard">
+      <div class="stat"><span id="stat-total">0</span><label>Total words</label></div>
+      <div class="stat"><span id="stat-new">0</span><label>New today</label></div>
+      <div class="stat"><span id="stat-due">0</span><label>Due now</label></div>
+      <div class="stat"><span id="stat-acc">0%</span><label>Accuracy</label></div>
+      <div class="stat"><span id="stat-streak">0</span><label>Streak</label></div>
+      <div class="stat"><span id="stat-mastered">0</span><label>Mastered</label></div>
+    </section>
+
+    <!-- QUIZ TAB -->
+    <section id="tab-quiz" class="tab active">
+      <div class="quiz-controls">
+        <div class="control">
+          <label for="mode">Mode</label>
+          <select id="mode">
+            <option value="mc">Multiple Choice (Synonym)</option>
+            <option value="type">Type the Synonym</option>
+            <option value="def">Definition → Headword</option>
+            <option value="match">Match Pairs</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="batch">Batch size</label>
+          <select id="batch">
+            <option>10</option>
+            <option selected>20</option>
+            <option>30</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="newRatio">New vs Due</label>
+          <select id="newRatio">
+            <option value="0">Only due</option>
+            <option value="0.25">25% new</option>
+            <option value="0.5" selected>50% new</option>
+            <option value="0.75">75% new</option>
+            <option value="1">Only new</option>
+          </select>
+        </div>
+        <button id="startQuiz" class="primary">Start</button>
+      </div>
+
+      <div id="quiz-area" class="card hidden"></div>
+      <div id="feedback" class="feedback"></div>
+    </section>
+
+    <!-- REVIEW TAB -->
+    <section id="tab-review" class="tab">
+      <h2>Your Progress</h2>
+      <div class="legend">
+        <span class="pill l0">L0</span>
+        <span class="pill l1">L1</span>
+        <span class="pill l2">L2</span>
+        <span class="pill l3">L3</span>
+        <span class="pill l4">L4</span>
+        <span class="pill l5">L5</span>
+        <small>Leitner levels (L5 = mastered)</small>
+      </div>
+      <table id="progress-table">
+        <thead>
+          <tr>
+            <th>Word</th>
+            <th>Synonyms (advanced)</th>
+            <th>Meaning</th>
+            <th>Level</th>
+            <th>Next review</th>
+            <th>Total attempts</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button id="exportData" class="secondary">Export Progress (JSON)</button>
+    </section>
+
+    <!-- MANAGE TAB -->
+    <section id="tab-manage" class="tab">
+      <h2>Study Set</h2>
+      <p>Add your own words or paste a JSON list. Format is shown below.</p>
+      <details>
+        <summary>Show JSON format</summary>
+<pre>{
+  "word": "Important",
+  "meaning": "highly significant; central",
+  "synonyms": ["Pivotal", "Paramount", "Momentous", "Salient"]
+}</pre>
+      </details>
+
+      <div class="manage-grid">
+        <div class="card">
+          <h3>Add one item</h3>
+          <label>Word<input id="add-word" /></label>
+          <label>Meaning<textarea id="add-meaning" rows="2"></textarea></label>
+          <label>Synonyms (comma-separated)<textarea id="add-syns" rows="2"></textarea></label>
+          <button id="addOne" class="primary">Add</button>
+        </div>
+        <div class="card">
+          <h3>Bulk import (JSON)</h3>
+          <textarea id="bulk-json" rows="12" placeholder='[ { "word": "...", "meaning": "...", "synonyms": ["..."] }, ... ]'></textarea>
+          <button id="importJSON" class="primary">Import</button>
+        </div>
+      </div>
+      <button id="resetAll" class="danger">Reset ALL data</button>
+    </section>
+
+    <!-- SETTINGS TAB -->
+    <section id="tab-settings" class="tab">
+      <h2>Settings</h2>
+      <div class="settings-grid">
+        <div class="card">
+          <h3>Spaced Repetition Intervals</h3>
+          <p>Leitner levels (in days):</p>
+          <label>L1 <input id="int-l1" type="number" min="0" step="1" /></label>
+          <label>L2 <input id="int-l2" type="number" min="0" step="1" /></label>
+          <label>L3 <input id="int-l3" type="number" min="0" step="1" /></label>
+          <label>L4 <input id="int-l4" type="number" min="0" step="1" /></label>
+          <label>L5 <input id="int-l5" type="number" min="0" step="1" /></label>
+          <button id="saveIntervals" class="secondary">Save</button>
+        </div>
+        <div class="card">
+          <h3>Export / Import All</h3>
+          <button id="exportAll" class="secondary">Export Everything (JSON)</button>
+          <textarea id="importAllBox" rows="8" placeholder="Paste full backup JSON here..."></textarea>
+          <button id="importAll" class="primary">Import Everything</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Built for active recall + spaced repetition. Data is saved in your browser.</small>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
